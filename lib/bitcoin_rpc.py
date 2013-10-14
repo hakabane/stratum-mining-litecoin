@@ -43,15 +43,15 @@ class BitcoinRPC(object):
     def submitblock(self, block_hex, block_hash_hex):
         # Try submitblock if that fails, go to getblocktemplate
         for i in range(0,4):
-			try:
-				resp = (yield self._call('submitblock', [block_hex,]))
-			except Exception:
-				try: 
-					resp = (yield self._call('getblocktemplate', [{'mode': 'submit', 'data': block_hex}]))
-				except Exception as e:
-					log.exception("Problem Submitting block %s" % str(e))
-					if (i==4):
-						raise
+            try:
+                resp = (yield self._call('submitblock', [block_hex,]))
+            except Exception:
+                try: 
+                    resp = (yield self._call('getblocktemplate', [{'mode': 'submit', 'data': block_hex}]))
+                except Exception as e:
+                    log.exception("Problem Submitting block %s" % str(e))
+                    if (i==4):
+                        raise
 
         if json.loads(resp)['result'] == None:
             # make sure the block was created. 

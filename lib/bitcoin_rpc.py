@@ -42,16 +42,20 @@ class BitcoinRPC(object):
     @defer.inlineCallbacks
     def submitblock(self, block_hex, block_hash_hex):
         # Try submitblock if that fails, go to getblocktemplate
-        for i in range(0,4):
+        for i in range(1,6):
             try:
                 resp = (yield self._call('submitblock', [block_hex,]))
             except Exception:
-                try: 
+                log.warning("Problem submitting block with submitblock : %s" % str(e))
+                try:
                     resp = (yield self._call('getblocktemplate', [{'mode': 'submit', 'data': block_hex}]))
                 except Exception as e:
-                    log.exception("Problem Submitting block %s" % str(e))
-                    if (i==4):
+                    log.warning("Problem submitting block with getblocktemplate : %s" % str(e))
+                    if (i==5):
+                        log.exception("Problem submitting block after 5 attempts : s%" % str(e))
                         raise
+                    else
+                        time.sleep(1)
 
         if json.loads(resp)['result'] == None:
             # make sure the block was created. 
